@@ -412,11 +412,9 @@ public class DobbeltLenketListe<T> implements Liste<T> {
     // the previous value is smaller:
     // The algorithm sorts a list of 1600 elements in around 1 second and a list of
     // 3200 elements in around 7.7 seconds, so the method seems to be of cubic order.
-    // According to my rough analysis of the method, it uses (n^3 - n^2)/2 iterations
-    // to sort a list of n elements and O(n^3).
-    // (n-1)*((n-1) + (n-2) + (n-2)*(n-1) + n-1) = (n-1)*(3*n-4 + (n-2)(n-1))
-    // = (n-2)*(n-1)^2 + (n-1)(3n-4) = (n-2)*(n^2-2*n+1) + (3n^2-7*n+4)
-    // = n^3-2*n^2+n - 2*n^2+4*n-2 + 3*n^2 - 7*n + 4 = n^3 - n^2 - 2*n + 2
+    // According to my rough analysis of the method, it uses n^3 - n^2 - 2*n + 2
+    // iterations to sort a list of n elements, in other words: O(n^3). The reason it's so slow is
+    // of course because 'hent' and 'oppdater' on element number 'n' takes 'n' operations.
     public static <T> void insertionSort(Liste<T> list, Comparator<T> c) {
 
         for (int i = 1; i < list.antall(); i++) {
