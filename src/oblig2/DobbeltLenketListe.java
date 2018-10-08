@@ -1,3 +1,5 @@
+// Erik Snilsberg s325872
+
 package oblig2;
 
 import java.util.*;
@@ -50,6 +52,59 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         hale = node;
     }
 
+    // Oppgave 1 (The constructor for task 1 is near the top of the class)
+    @Override
+    public int antall() {
+        return antall;
+    }
+
+    // Oppgave 1
+    @Override
+    public boolean tom() {
+        return antall < 1;
+    }
+
+    // Oppgave 2 a)
+    @Override
+    public String toString() {
+        StringBuilder strBuilder = new StringBuilder("[");
+
+        Node<T> node = hode;
+        for (int i = 0; i < antall; i++) {
+
+            strBuilder.append(node.verdi);
+
+            if (i < antall - 1)
+                strBuilder.append(", ");
+
+            node = node.neste;
+        }
+
+        strBuilder.append("]");
+
+        return strBuilder.toString();
+    }
+
+    // Oppgave 2 a)
+    public String omvendtString() {
+        StringBuilder strBuilder = new StringBuilder("[");
+
+        Node<T> node = hale;
+        for (int i = 0; i < antall; i++) {
+
+            strBuilder.append(node.verdi);
+
+            if (i < antall - 1)
+                strBuilder.append(", ");
+
+            node = node.forrige;
+        }
+
+        strBuilder.append("]");
+
+        return  strBuilder.toString();
+    }
+
     // Oppgave 2 b)
     @Override
     public boolean leggInn(T verdi) {
@@ -71,6 +126,119 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         endringer++;
 
         return true;
+    }
+
+    // Oppgave 3 a)
+    @Override
+    public T hent(int indeks) {
+        indeksKontroll(indeks, false);
+
+        return finnNode(indeks).verdi;
+    }
+
+    // Oppgave 3 a)
+    private Node<T> finnNode(int index) {
+        if (index < antall/2) {
+            return findNodeFirstHalf(index);
+        } else {
+            return findNodeLastHalf(index);
+        }
+    }
+
+    // Oppgave 3 a)
+    private Node<T> findNodeFirstHalf(int index) {
+        Node<T> node = hode;
+
+        for (int i = 0; i < index; i++) {
+            node = node.neste;
+        }
+
+        return node;
+    }
+
+    // Oppgave 3 a)
+    private Node<T> findNodeLastHalf(int index) {
+        Node<T> node = hale;
+
+        for (int i = 0; i < antall - 1 - index; i++) {
+            node = node.forrige;
+        }
+
+        return node;
+    }
+
+    // Oppgave 3 a)
+    @Override
+    public T oppdater(int indeks, T verdi) {
+        Objects.requireNonNull(verdi);
+        indeksKontroll(indeks, false);
+
+        Node<T> node = finnNode(indeks);
+
+        T oldverdi = node.verdi;
+        node.verdi = verdi;
+
+        endringer++;
+
+        return oldverdi;
+    }
+
+    // Oppgave 3 b)
+    public Liste<T> subliste(int fra, int til) {
+        fraTilKontroll(antall, fra, til);
+
+        Liste<T> sub = new DobbeltLenketListe<>();
+
+        Node<T> node = finnNode(fra);
+
+        for (int i = fra; i < til; i++) {
+            sub.leggInn(node.verdi);
+            node = node.neste;
+        }
+
+        return sub;
+    }
+
+    // Oppgave 3 b)
+    private void fraTilKontroll(int antall, int fra, int til) {
+        if (antall < 0)
+            throw new IllegalArgumentException
+                    ("Negativt antall");
+
+        if (fra < 0)
+            throw new IndexOutOfBoundsException
+                    ("fra(" + fra + ") er negativ!");
+
+        if (til > antall)
+            throw new IndexOutOfBoundsException
+                    ("til(" + til + ") > antall(" + antall + ")");
+
+        if (fra > til)
+            throw new IllegalArgumentException
+                    ("fra(" + fra + ") > til(" + til + ") - ulovlig intervall!");
+    }
+
+    // Oppgave 4
+    @Override
+    public boolean inneholder(T verdi) {
+        return indeksTil(verdi) != -1;
+    }
+
+    // Oppgave 4
+    @Override
+    public int indeksTil(T verdi) {
+        if (verdi == null) return -1;
+
+        Node<T> node = hode;
+
+        for (int i = 0; i < antall; i++) {
+            if (verdi.equals(node.verdi))
+                return i;
+
+            node = node.neste;
+        }
+
+        return -1;
     }
 
     // Oppgave 5
@@ -108,20 +276,6 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         endringer++;
     }
 
-    // Oppgave 4
-    @Override
-    public boolean inneholder(T verdi) {
-        return indeksTil(verdi) != -1;
-    }
-
-    // Oppgave 3 a)
-    @Override
-    public T hent(int indeks) {
-        indeksKontroll(indeks, false);
-
-        return finnNode(indeks).verdi;
-    }
-
     // Helper method for one of the 'fjern'-methods in oppgave 6:
     private Node<T> finnNode(T verdi) {
 
@@ -135,68 +289,6 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         }
 
         return node;
-    }
-
-    // Oppgave 3 a)
-    private Node<T> finnNode(int index) {
-        if (index < antall/2) {
-            return findNodeFirstHalf(index);
-        } else {
-            return findNodeLastHalf(index);
-        }
-    }
-
-    // Oppgave 3 a)
-    private Node<T> findNodeFirstHalf(int index) {
-        Node<T> node = hode;
-
-        for (int i = 0; i < index; i++) {
-            node = node.neste;
-        }
-
-        return node;
-    }
-
-    // Oppgave 3 a)
-    private Node<T> findNodeLastHalf(int index) {
-        Node<T> node = hale;
-
-        for (int i = 0; i < antall - 1 - index; i++) {
-            node = node.forrige;
-        }
-
-        return node;
-    }
-
-    // Oppgave 4
-    @Override
-    public int indeksTil(T verdi) {
-        Node<T> node = hode;
-
-        for (int i = 0; i < antall; i++) {
-            if (verdi.equals(node.verdi))
-                return i;
-
-            node = node.neste;
-        }
-
-        return -1;
-    }
-
-    // Oppgave 3 a)
-    @Override
-    public T oppdater(int indeks, T verdi) {
-        Objects.requireNonNull(verdi);
-        indeksKontroll(indeks, false);
-
-        Node<T> node = finnNode(indeks);
-
-        T oldverdi = node.verdi;
-        node.verdi = verdi;
-
-        endringer++;
-
-        return oldverdi;
     }
 
     // Oppgave 6
@@ -264,18 +356,6 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         return node.verdi;
     }
 
-    // Oppgave 1 (The constructor for task 1 is near the top of the class)
-    @Override
-    public int antall() {
-        return antall;
-    }
-
-    // Oppgave 1
-    @Override
-    public boolean tom() {
-        return antall < 1;
-    }
-
     // Oppgave 7
     // I measured the time of the methods on 3000 lists with 10 000 elements
     // and I never saw any real difference between the time of the two
@@ -332,108 +412,34 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         return new DobbeltLenketListeIterator(indeks);
     }
 
-    // Oppgave 3 b)
-    public Liste<T> subliste(int fra, int til) {
-        fraTilKontroll(antall, fra, til);
-
-        Liste<T> sub = new DobbeltLenketListe<>();
-
-        Node<T> node = finnNode(fra);
-
-        for (int i = fra; i < til; i++) {
-            sub.leggInn(node.verdi);
-            node = node.neste;
-        }
-
-        return sub;
-    }
-
-    // Oppgave 3 b)
-    private void fraTilKontroll(int antall, int fra, int til) {
-        if (antall < 0)
-            throw new IllegalArgumentException
-                    ("Negativt antall");
-
-        if (fra < 0)
-            throw new IndexOutOfBoundsException
-                    ("fra(" + fra + ") er negativ!");
-
-        if (til > antall)
-            throw new IndexOutOfBoundsException
-                    ("til(" + til + ") > antall(" + antall + ")");
-
-        if (fra > til)
-            throw new IllegalArgumentException
-                    ("fra(" + fra + ") > til(" + til + ") - ulovlig intervall!");
-    }
-
-    // Oppgave 2 a)
-    @Override
-    public String toString() {
-        StringBuilder strBuilder = new StringBuilder("[");
-
-        Node<T> node = hode;
-        for (int i = 0; i < antall; i++) {
-
-            strBuilder.append(node.verdi);
-
-            if (i < antall - 1)
-                strBuilder.append(", ");
-
-            node = node.neste;
-        }
-
-        strBuilder.append("]");
-
-        return strBuilder.toString();
-    }
-
-    public String omvendtString() {
-        StringBuilder strBuilder = new StringBuilder("[");
-
-        Node<T> node = hale;
-        for (int i = 0; i < antall; i++) {
-
-            strBuilder.append(node.verdi);
-
-            if (i < antall - 1)
-                strBuilder.append(", ");
-
-            node = node.forrige;
-        }
-
-        strBuilder.append("]");
-
-        return  strBuilder.toString();
-    }
-
     // Oppgave 10
-    // Insertion-sort, comparing each value to earlier elements and placing it when
-    // the previous value is smaller:
+    // Selection-sort, comparing all values to find the smallest and swapping the
+    // smallest values to the start:
     // The algorithm sorts a list of 1600 elements in around 1 second and a list of
     // 3200 elements in around 7.7 seconds, so the method seems to be of cubic order.
-    // According to my rough analysis of the method, it uses n^3 - n^2 - 2*n + 2
-    // iterations to sort a list of n elements, in other words: O(n^3). The reason it's so slow is
-    // of course because 'hent' and 'oppdater' on element number 'n' takes 'n' operations.
-    public static <T> void insertionSort(Liste<T> list, Comparator<T> c) {
+    // The reason it's so slow is of course because 'hent' and 'oppdater' on element
+    // number 'n' takes 'n' operations.
+    public static <T> void sorter(Liste<T> list, Comparator<T> c) {
+        for (int i = 0; i < list.antall() - 1; i++) {
 
-        for (int i = 1; i < list.antall(); i++) {
-            T current = list.hent(i);
+            // Set the first value as the smallest:
+            T min = list.hent(i);
+            int minIndex = i;
 
-            int j = i - 1;
-            T prev = list.hent(j);
+            for (int j = i + 1; j < list.antall(); j++) {
 
-            // Compare current value with previous values and move
-            // greater values further back in the list:
-            while (j >= 0 && c.compare(current, prev) < 0) {
-                list.oppdater(j + 1, prev);
-                j--;
+                // Compare each value to the smallest to find potentially smaller values:
+                T current = list.hent(j);
+                if (c.compare(current, min) < 0) {
+                    min = current;
+                    minIndex = j;
+                }
             }
 
-            // If the loop went all the way to the end, j will be equal to -1 and so
-            // 'verdi' will be placed in the first spot in the array.
-            // Else, a[j] will be less than 'verdi' while everything after a[j] will be greater.
-            list.oppdater(j + 1, current);
+            // Move the smallest value to the first spot:
+            T tmp = list.hent(i);
+            list.oppdater(i, min);
+            list.oppdater(minIndex, tmp);
         }
     }
 
@@ -538,4 +544,3 @@ public class DobbeltLenketListe<T> implements Liste<T> {
         }
     }
 }
-
